@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Arena Seat Views — Pannellum</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+
+<!-- Pannellum -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+
+<style>
+  :root {
+  --bg: #00243C;
+  --ink: #0a2540;
+  --text: #111;
+  --banner-gutter: 80px;   /* room for the vertical text */
+  --banner-offset: 325px;   /* how far “right” the rotated text sits */
+}
+
+  html, body {
+    height: 100%; margin: 0;
+    font-family: 'Roboto Condensed', system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+  }
+
+  .hidden { display: none; }
+
+  /* ---------------- Global corner rules ---------------- */
+  * { border-radius: 0 !important; }           /* square everything */
+  .pin, .pnlm-compass { border-radius: 50% !important; } /* keep pins + compass round */
+
+  /* ---------------- Sidebar ---------------- */
+  .section-panel {
+    position: relative;
+    width: 220px;
+    background: #36BFED;
+    backdrop-filter: blur(2px);
+    border: 1px solid #36BFED;
+    box-shadow: 4px 4px 16px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+  .panel-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px; margin:10px;
+    font-weight:900; letter-spacing:.5px;
+    color:var(--ink);
+    background:#fff;
+    border:0; cursor:pointer;
+    width: calc(100% - 20px);
+    height: 48px;             /* fixed height */
+  }
+  .panel-list { overflow:auto; padding:6px 10px 14px 10px; display:none; }
+  .section-panel:not(.collapsed) .panel-list { display: block; }
+  .section-panel.collapsed .chev { transform: rotate(-90deg); }
+
+  .section-item {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 12px; margin:6px 8px;
+    font-weight:700;
+    color:var(--ink);
+    background:#fff;
+    border:1px solid rgba(10,37,64,.08);
+    cursor:pointer; user-select:none;
+    transition: background .2s ease, transform .05s ease;
+  }
+  .section-item:hover { background:#cde8fa; }
+  .section-item:active { transform:scale(.98); }
+  .section-item.active { background:#a9d6f7; border-color:var(--ink); }
+
+  /* Group titles (100s / 200s / 300s) */
+  .section-group { margin: 8px 6px 14px 6px; }
+  .section-group-title {
+    font-weight: 900;
+    font-size: 1.05rem;
+    letter-spacing: .04em;
+    color: var(--ink);
+    opacity: .95;
+    padding: 8px 10px;
+    margin: 6px 4px 6px 4px;
+    background: #fff;
+    border: 1px solid rgba(10,37,64,.08);
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .section-group .section-item { margin:6px 4px; }
+
+  /* --- Collapsible groups inside the sidebar (100s / 200s / 300s) --- */
+.section-group {
+  margin: 8px 6px 14px 6px;
+  border: 1px solid rgba(10,37,64,.08);
+  background: #fff;
+}
+
+.group-header {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  color: var(--ink);
+  text-transform: uppercase;
+  cursor: pointer;
+  background: #fff;
+  border: 0;
+}
+
+.group-header .group-chev { transition: transform .2s ease; }
+.section-group.collapsed .group-chev { transform: rotate(-90deg); }
+
+.group-list { padding: 6px 8px 10px 8px; display: block; }
+.section-group.collapsed .group-list { display: none; }
+
+/* keep your item spacing */
+.section-group .section-item { margin:6px 4px; }
+
+
+  /* ---------------- Map View ---------------- */
+  #mapView .outer {
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:20px;
+    padding: 4vmin;
+    padding-right: var(--banner-gutter); /* reserve space for banner */
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  .map-card {
+    position: relative;
+    width: min(1100px, 90vw);
+    aspect-ratio: 792 / 612; /* keep your map ratio */
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.15);
+    background: #fff;        /* white behind the arena image */
+  }
+  .map-card img { width:100%; height:100%; display:block; }
+
+  .pin {
+    --x: 50%; --y: 50%;
+    position: absolute;
+    left: var(--x); top: var(--y);
+    transform: translate(-50%, -50%);
+    width: 2%;
+    aspect-ratio: 1/1;
+    background: #F90113;
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .pin:hover { background: #ffffff; border-color: #F90113; }
+
+  /* ---------------- Viewer View ---------------- */
+  #viewerView .outer {
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:20px;
+    padding: 4vmin;
+    padding-right: var(--banner-gutter); /* reserve space for banner */
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  .pano-card {
+    position: relative;
+    width: min(1100px, 90vw);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.15);
+    background: #000; /* pano loads over this */
+  }
+  #panorama { position: absolute; inset: 0; }
+
+  .topbar {
+  position: absolute;
+  top: 16px;
+  left: 42px;
+  right: 36px; /* keep default spacing on right */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Roboto Condensed', sans-serif;
+  pointer-events: none; /* avoids blocking clicks in viewer */
+}
+
+.back {
+  pointer-events: auto; /* re-enable for the button */
+}
+
+.label {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  font-weight: 700;
+  border-radius: 0; /* square edge */
+  white-space: nowrap;
+  pointer-events: auto;
+  position: absolute;
+  top: 0px;
+  right: 50px;
+}
+
+
+  .back {
+    background: #111;
+    border: 1px solid rgba(255,255,255,.2);
+    color: #fff;
+    padding: .55rem .9rem;
+    cursor: pointer;
+  }
+  .back:hover { background: #222; }
+
+  .side-title {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  /* swapped order — translate first, then rotate */
+  transform: translateX(var(--banner-offset)) translateY(-50%) rotate(270deg);
+  transform-origin: center center;
+  white-space: nowrap;
+
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 60px;
+  letter-spacing: 0.4em;
+  color: #FFF;
+  text-shadow: 0 0 15px rgba(255, 60, 60, 0.6),
+               0 0 30px rgba(255, 0, 0, 0.4);
+  text-transform: uppercase;
+
+  user-select: none;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 1; /* visible immediately */
+}
+
+
+@keyframes fadeInBanner {
+  from { opacity: 0; transform: translateY(-50%) rotate(90deg) translateX(160px); }
+  to   { opacity: 1; transform: translateY(-50%) rotate(90deg) translateX(120px); }
+}
+
+
+
+  /* Ensure UI stays above banner text */
+  .map-card,
+  .pano-card,
+  .section-panel,
+  .topbar {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ---------------- Responsive ---------------- */
+  @media (max-width: 980px) {
+    #mapView .outer, #viewerView .outer {
+      flex-direction: column;
+      align-items: stretch;
+      padding-right: var(--banner-gutter);
+    }
+    .section-panel { width: 100%; }
+  }
+  /* Optional: tighten banner and gutter on small phones */
+  @media (max-width: 600px) {
+    :root { --banner-gutter: 80px; }
+    .side-title { font-size: 44px; right: 6px; }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ============ MAP VIEW ============ -->
+<section id="mapView">
+  <div class="outer">
+    <!-- Sidebar (cllosed by default on Map) -->
+    <aside class="section-panel collapsed" id="sectionPanelMap">
+      <button class="panel-header" id="dropdownBtnMap" type="button">
+        <span>SECTIONS</span><span class="chev">▾</span>
+      </button>
+      <div class="panel-list" id="sectionListMap"></div>
+    </aside>
+
+    <!-- Arena Image Card -->
+    <div class="map-card">
+      <img src="images/akins_seating.jpg" alt="Arena Map">
+      <!-- pins -->
+      <button class="pin" style="--x:32%;--y:33%" data-key="section0"  title="Section 100"></button>
+      <button class="pin" style="--x:40%;--y:33%" data-key="section1"  title="Section 101"></button>
+      <button class="pin" style="--x:50%;--y:33%" data-key="section2"  title="Section 102"></button>
+      <button class="pin" style="--x:60%;--y:33%" data-key="section3"  title="Section 103"></button>
+      <button class="pin" style="--x:69%;--y:33%" data-key="section4"  title="Section 104"></button>
+      <button class="pin" style="--x:77%;--y:33%" data-key="section5"  title="Section 105"></button>
+      <button class="pin" style="--x:82.4%;--y:33.5%" data-key="section6" title="Section 106"></button>
+      <button class="pin" style="--x:85%;--y:43.6%" data-key="section7"  title="Section 107"></button>
+      <button class="pin" style="--x:85%;--y:52.3%" data-key="section8"  title="Section 108"></button>
+      <button class="pin" style="--x:85%;--y:60.5%" data-key="section9"  title="Section 109"></button>
+      <button class="pin" style="--x:82.5%;--y:71.1%" data-key="section10" title="Section 110"></button>
+      <button class="pin" style="--x:77%;--y:71.1%" data-key="section11" title="Section 111"></button>
+      <button class="pin" style="--x:69%;--y:71.1%" data-key="section12" title="Section 112"></button>
+      <button class="pin" style="--x:60%;--y:71.1%" data-key="section13" title="Section 113"></button>
+      <button class="pin" style="--x:50%;--y:71.1%" title="Section 114"></button>
+      <button class="pin" style="--x:40%;--y:71.1%" title="Section 115"></button>
+      <button class="pin" style="--x:32%;--y:71.1%" title="Section 116"></button>
+      <button class="pin" style="--x:27%;--y:71.1%" title="Section 117"></button>
+      <button class="pin" style="--x:25%;--y:58%"  title="Section 118"></button>
+      <button class="pin" style="--x:25%;--y:47.5%" data-key="section20", title="Section 200" 200"></button>
+      <button class="pin" style="--x:24.5%;--y:38%" title="Section 118"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VIEWER VIEW ============ -->
+<section id="viewerView" class="hidden">
+  <div class="outer">
+    <!-- Sidebar (collapsed by default on Viewer) -->
+    <aside class="section-panel collapsed" id="sectionPanelViewer">
+      <button class="panel-header" id="dropdownBtnViewer" type="button">
+        <span>SECTIONS</span><span class="chev">▾</span>
+      </button>
+      <div class="panel-list" id="sectionListViewer"></div>
+    </aside>
+
+    <!-- Panorama Card -->
+    <div class="pano-card">
+      <div id="panorama"></div>
+      <div class="topbar">
+        <button class="back" id="backBtn">← Back to Map</button>
+        <div class="label" id="sectionLabel">Section</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Right-side banner -->
+<div class="side-title">ROCK&nbsp;LOBSTERS</div> 
+
+<script>
+/* ------------ Scene data ------------ */
+const scenes = {
+  section0:  { image: 'images/section0.JPG',  label: 'Section 100' },
+  section1:  { image: 'images/section1.JPG',  label: 'Section 101' },
+  section2:  { image: 'images/section2.JPG',  label: 'Section 102' },
+  section3:  { image: 'images/section3.JPG',  label: 'Section 103' },
+  section4:  { image: 'images/section4.JPG',  label: 'Section 104' },
+  section5:  { image: 'images/section5.JPG',  label: 'Section 105' },
+  section6:  { image: 'images/section6.JPG',  label: 'Section 106' },
+  section7:  { image: 'images/section7.JPG',  label: 'Section 107' },
+  section8:  { image: 'images/section8.JPG',  label: 'Section 108' },
+  section9:  { image: 'images/section9.JPG',  label: 'Section 109' },
+  section10: { image: 'images/section10.JPG', label: 'Section 110' },
+  section11: { image: 'images/section11.JPG', label: 'Section 111' },
+  section12: { image: 'images/section12.JPG', label: 'Section 112' },
+  section13: { image: 'images/section13.JPG', label: 'Section 113' },
+  section20: { image: 'images/section13.JPG', label: 'Section 200' }
+  // Add more as needed: section14 → "Section 114", etc.
+};
+
+let currentKey = null;
+
+/* ------------ View toggles ------------ */
+function showMap() {
+  document.getElementById('viewerView').classList.add('hidden');
+  document.getElementById('mapView').classList.remove('hidden');
+  setPanelOpen('sectionPanelMap', true);   // open map sidebar
+}
+function showViewer() {
+  document.getElementById('mapView').classList.add('hidden');
+  document.getElementById('viewerView').classList.remove('hidden');
+  setPanelOpen('sectionPanelViewer', false); // collapse viewer sidebar
+}
+
+/* ------------ Pannellum switch ------------ */
+function switchScene(key) {
+  const scene = scenes[key];
+  if (!scene) return;
+
+  pannellum.viewer('panorama', {
+    type: 'equirectangular',
+    panorama: scene.image,
+    autoLoad: true,
+    showZoomCtrl: true,
+    hfov: 100
+  });
+
+  document.getElementById('sectionLabel').textContent = scene.label;
+  markActiveInPanels(scene.label);
+  currentKey = key;
+  showViewer();
+}
+
+/* ------------ Sidebar grouping & behavior ------------ */
+function parseSectionNumber(label){
+  const m = String(label||'').match(/(\d+)/);
+  return m ? parseInt(m[1],10) : NaN;
+}
+function groupKeyFor(num){
+  if (isNaN(num)) return 'Other';
+  const first = String(num)[0];
+  if (first === '1') return '100s';
+  if (first === '2') return '200s';
+  if (first === '3') return '300s';
+  return 'Other';
+}
+function populateSectionPanelGrouped(listElId, opts = {}) {
+  const { collapseAll = false } = opts;
+  const listEl = document.getElementById(listElId);
+  if (!listEl) return;
+  listEl.innerHTML = '';
+
+  // bucket scenes
+  const groups = { '100s':[], '200s':[], '300s':[], 'Other':[] };
+  Object.entries(scenes).forEach(([key, data]) => {
+    const m = String(data.label||'').match(/(\d+)/);
+    const num = m ? parseInt(m[1],10) : NaN;
+    const first = isNaN(num) ? null : String(num)[0];
+    const gk = first === '1' ? '100s' : first === '2' ? '200s' : first === '3' ? '300s' : 'Other';
+    groups[gk].push({ key, num, label: data.label || '' });
+  });
+
+  ['100s','200s','300s','Other'].forEach(gk => {
+    if (!groups[gk].length) return;
+    groups[gk].sort((a,b)=> (a.num||0)-(b.num||0));
+
+    // wrapper
+    const wrap = document.createElement('div');
+    wrap.className = 'section-group' + (collapseAll ? ' collapsed' : '');
+
+    // header (click to toggle)
+    const header = document.createElement('button');
+    header.type = 'button';
+    header.className = 'group-header';
+    header.innerHTML = `<span>${gk}</span><span class="group-chev">▾</span>`;
+    header.addEventListener('click', () => {
+      wrap.classList.toggle('collapsed');
+    });
+
+    // list container
+    const list = document.createElement('div');
+    list.className = 'group-list';
+
+    // items
+    groups[gk].forEach(it => {
+      const item = document.createElement('div');
+      item.className = 'section-item';
+      const n = isNaN(it.num) ? it.label : it.num;
+      item.innerHTML = `<span class="num">${n}</span>`;
+      item.addEventListener('click', () => switchScene(it.key));
+      list.appendChild(item);
+    });
+
+    wrap.appendChild(header);
+    wrap.appendChild(list);
+    listEl.appendChild(wrap);
+  });
+}
+
+function markActiveInPanels(label){
+  document.querySelectorAll('.section-item').forEach(el => el.classList.remove('active'));
+  const num = (String(label||'').match(/(\d+)/)||[])[1];
+  document.querySelectorAll('.section-item').forEach(el => {
+    if(el.textContent.trim() === String(num||'').trim()){ el.classList.add('active'); }
+  });
+}
+function setPanelOpen(panelId, open){
+  const panel = document.getElementById(panelId);
+  if(!panel) return;
+  if(open){ panel.classList.remove('collapsed'); }
+  else     { panel.classList.add('collapsed'); }
+}
+
+/* ------------ Wire up pins & buttons ------------ */
+document.querySelectorAll('.pin').forEach(pin => {
+  pin.addEventListener('click', () => {
+    const key = pin.dataset.key;
+    if (key) switchScene(key);
+  });
+});
+document.getElementById('backBtn').addEventListener('click', showMap);
+
+['dropdownBtnMap','dropdownBtnViewer'].forEach(id => {
+  const btn = document.getElementById(id);
+  if(!btn) return;
+  btn.addEventListener('click', () => {
+    const panel = btn.closest('.section-panel');
+    panel.classList.toggle('collapsed');
+  });
+});
+
+/* ------------ Build lists & start on Map ------------ */
+populateSectionPanelGrouped('sectionListMap',    { collapseAll: true }); // groups open on Map
+populateSectionPanelGrouped('sectionListViewer', { collapseAll: true  }); // groups collapsed on Viewer
+showMap(); // open map / open sidebar by default
+setPanelOpen('sectionPanelMap', false); // keep it closed at start
+</script>
+
+</body>
+</html>
