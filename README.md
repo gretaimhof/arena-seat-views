@@ -1,5 +1,4 @@
 **Project:** “Tank Tour” — Akins Ford Arena  
-**Developed By:** Rock Lobster Capstone Team
 **Delivered To:** Athens Rock Lobsters  
 
 ---
@@ -218,7 +217,6 @@ This hosted version matches the local files and can be used to preview or share 
 For questions, updates, or additional assistance:  
 **Developer:** Greta Imhof  
 **Email:** gretaimhof@gmail.com 
-**Live Site:** [https://gretaimhof.github.io/arena-seat-views/](https://gretaimhof.github.io/arena-seat-views/)
 
 If the Rock Lobsters team would like to be **added as a GitHub collaborator** or have the **repository ownership transferred** for long-term maintenance, please reach out via email.
 
