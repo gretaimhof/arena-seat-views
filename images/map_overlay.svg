@@ -1,0 +1,36 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="map_overlay">
+<g id="232">
+<path id="232_A-B" d="M386.5 328L436.5 240L513 192L501.5 173L418.5 221.5L364 318.5L386.5 328Z" stroke="black"/>
+</g>
+<g id="231">
+<path id="231_A-B" d="M374.5 345.5L346 328L315 381.5L324 389.5L304 420.5V485L328 492.5V425L374.5 345.5Z" stroke="black"/>
+</g>
+<g id="119">
+<path id="119_D-F" d="M529.5 433L493 412V535H529.5V433Z" stroke="black"/>
+<path id="119_G-J" d="M493 412L457 391V495H478V535H493V412Z" stroke="black"/>
+<path id="119_A-C" d="M586 466.5L530.5 434L529.5 535L569.5 536V494L586 466.5Z" stroke="black"/>
+<path id="119_K-N" d="M457 391.5L418.5 369.5V495.5H457V391.5Z" stroke="black"/>
+<path id="119_O-R" d="M418 369.5L415.5 367.5L373 440V453H361V502.5L408 514V495.5H418V369.5Z" stroke="black"/>
+</g>
+<g id="120">
+<path id="120_O-R" d="M471 272L424.5 353.5L463 375L507.5 303.5L560 272L530.5 223L468.5 259.5L477.5 269L471 272Z" stroke="black"/>
+<path id="120_K-N" d="M508 304.5L463.5 375L506.5 400L550 333.5L583.5 312.5L560 273L508 304.5Z" stroke="black"/>
+<path id="120_G-J" d="M550.5 334.5L507 400.5L535.5 416.5L565 364.5L569 368L603.5 345.5L583.5 313.5L550.5 334.5Z" stroke="black"/>
+<path id="120_D-F" d="M603 346L569 368L590 389L618.5 372L603 346Z" stroke="black"/>
+</g>
+<g id="100">
+<path id="100_O-R" d="M625 180.5L554 225L582 272.5L644.5 234.5H693V192H629L625 180.5Z" stroke="black"/>
+<path id="100_K-N" d="M644.5 234L582 273.5L599.5 303.5L652.5 270H693V234H644.5Z" stroke="black"/>
+<path id="100_G-J" d="M654 271L601 304L619 334.5L663.5 307H693V271H654Z" stroke="black"/>
+<path id="100_D-F" d="M664 307.5L620 335.5L635.5 361.5L669 342H694.5V307.5H664Z" stroke="black"/>
+<path id="100_A" d="M674 353L642 373.5L652.5 392.5L680.5 376.5H695.5V353H674Z" stroke="black"/>
+</g>
+<g id="230">
+<path id="230_A-B" d="M326.5 596.5L304.5 603V668.5L354 756L375.5 743.5L326.5 662V596.5Z" stroke="black"/>
+</g>
+<g id="229">
+<path id="229_A-B" d="M384 762L364 773L419.5 870.5L502 918.5L515 898L436 852L384 762Z" stroke="black"/>
+</g>
+</g>
+</svg>
