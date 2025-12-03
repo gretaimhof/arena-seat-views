@@ -148,6 +148,20 @@ html, body {
     background: rgba(54,191,237,0.92); /* brighter hover */
 }
 
+#row-tooltip {
+    position: fixed;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.75);
+    color: white;
+    font-family: "Roboto Condensed", sans-serif;
+    font-size: 16px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -120%);
+    transition: opacity 0.15s ease;
+    z-index: 9999;
+}
 
 </style>
 </head>
@@ -184,9 +198,32 @@ fetch("images/map_overlay.svg")
         const svg = document.querySelector("#overlay-container svg");
         svg.id = "overlay-svg";
 
-        svg.querySelectorAll("path").forEach(path => {
-            path.addEventListener("click", () => openPanorama(path.id));
-        });
+        const tooltip = document.getElementById("row-tooltip");
+
+svg.querySelectorAll("path").forEach(path => {
+
+    // CLICK — open panorama
+    path.addEventListener("click", () => openPanorama(path.id));
+
+    // HOVER IN — show full row range (e.g., "A-C")
+    path.addEventListener("mouseenter", (e) => {
+        const rows = path.id.split("_")[1];  // "A-C"
+        tooltip.innerText = rows.toUpperCase();  
+        tooltip.style.opacity = 1;
+    });
+
+    // MOVE — follow cursor
+    path.addEventListener("mousemove", (e) => {
+        tooltip.style.left = e.clientX + "px";
+        tooltip.style.top = e.clientY + "px";
+    });
+
+    // HOVER OUT — hide
+    path.addEventListener("mouseleave", () => {
+        tooltip.style.opacity = 0;
+    });
+});
+
     });
 
 
@@ -244,6 +281,6 @@ function closeViewer() {
     }
 }
 </script>
-
+<div id="row-tooltip"></div>
 </body>
 </html>
