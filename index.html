@@ -3,456 +3,247 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Arena Seat Views — Pannellum</title>
+<title>Arena Seat Views</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
 <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
 
 <style>
-:root{ --bg:#00243C; --ink:#0a2540; --text:#111; }
-
-html,body{ height:100%; margin:0; font-family:'Roboto Condensed',system-ui,sans-serif; color:var(--text); background:var(--bg); }
-*{ border-radius:0!important; }
-.pnlm-compass{ border-radius:50%!important; }
-
-/* Layering */
-#mapView, #viewerView{ position:fixed; inset:0; width:100vw; height:100vh; }
-#mapView{ z-index:1; }
-#overlay{ position:fixed; inset:0; z-index:2; background:rgba(0,0,0,.45); display:none; opacity:0; pointer-events:none; transition:opacity .3s ease; }
-#overlay.show{ display:block; opacity:1; }
-#viewerView{ z-index:3; display:none; opacity:0; pointer-events:none; transition:opacity .3s ease; align-items:center; justify-content:center; padding:4vmin; box-sizing:border-box; }
-#viewerView.show{ display:flex; opacity:1; pointer-events:auto; }
-
-/* Map with <img> + pin layer */
-.map-card{ position:relative; width:100vw; height:100vh; overflow:hidden; background-color:#00243C; }
-.map-image{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:block; user-select:none; pointer-events:none; }
-.pin-layer{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-
-/* Dropdown (map only) */
-.section-panel.inside{ position:absolute; top:20px; left:20px; z-index:4; width:280px; max-height:95vh; overflow-y:auto; background:#36BFED; border:1px solid #36BFED; box-shadow:0 8px 24px rgba(0,0,0,.18); }
-.panel-header{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin:10px; height:48px; font-weight:900; color:var(--ink); background:#fff; border:0; cursor:pointer; width:calc(100% - 20px); }
-.panel-list{ display:none; padding:6px 10px 14px 10px; }
-.section-panel.inside:not(.collapsed) .panel-list{ display:block; }
-.section-panel.inside.collapsed .chev{ transform:rotate(-90deg); }
-.section-group{ margin:8px 6px 12px 6px; border:1px solid rgba(10,37,64,.08); background:#fff; }
-.group-header{ display:flex; align-items:center; justify-content:space-between; width:100%; padding:10px 12px; font-weight:900; letter-spacing:.04em; color:var(--ink); text-transform:uppercase; cursor:pointer; background:#fff; border:0; }
-.group-header .group-chev{ transition:transform .2s ease; }
-.section-group.collapsed .group-chev{ transform:rotate(-90deg); }
-.group-list{ padding:6px 8px 8px 8px; display:block; }
-.section-group.collapsed .group-list{ display:none; }
-.section-subgroup{ margin:8px 0 10px 0; border:1px solid rgba(10,37,64,.08); background:#fff; }
-.section-subheader{ display:flex; align-items:center; justify-content:space-between; width:100%; padding:10px 12px; font-weight:800; color:var(--ink); background:#fff; border:0; cursor:pointer; }
-.section-subheader .chev{ transition:transform .2s ease; }
-.section-subgroup.collapsed .section-subheader .chev{ transform:rotate(-90deg); }
-.seat-list{ padding:6px 8px 8px 8px; display:block; }
-.section-subgroup.collapsed .seat-list{ display:none; }
-.seat-item{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; margin:6px 4px; font-weight:700; color:var(--ink); background:#fff; border:1px solid rgba(10,37,64,.08); cursor:pointer; user-select:none; transition:background .2s ease, transform .05s ease; }
-.seat-item:hover{ background:#cde8fa; }
-.seat-item.active{ background:#a9d6f7; border-color:var(--ink); }
-
-/* Button reset + invisible base */
-.pin{
-  position:absolute;
-  left:0; top:0;                 /* you already set pixel left/top in JS */
-  width:50px; height:50px;
-  transform:translate(-50%,-50%);
-  border:0; padding:0; margin:0;
-  background:transparent;
-  border-radius:50%;
-  cursor:pointer;
-  pointer-events:auto;
-
-  /* kill native button skin */
-  appearance:none;
-  -webkit-appearance:none;
-  outline:none;
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #00243C;
+    font-family: "Roboto Condensed", sans-serif;
+    overflow: hidden;
 }
 
-/* draw the glow on a pseudo-element (not the button box) */
-.pin::after{
-  content:"";
-  position:absolute;
-  left:50%; top:50%;
-  width:35px; height:35px;
-  transform:translate(-50%,-50%) scale(1);
-  border-radius:50%;
-  /* pure radial fade, no edges */
-  background:radial-gradient(
-    circle,
-    rgba(255,255,255,0.95) 0%,
-    rgba(255,255,255,0.35) 40%,
-    rgba(255,255,255,0.00) 80%
-  );
-  filter:blur(1px);              /* softer halo */
-  opacity:0;                     /* invisible by default */
-  transition:opacity .35s ease, transform .25s ease;
+#viewer-modal,
+#viewer-box,
+#panorama,
+#arrow-controls,
+#section-title,
+#back-btn {
+    font-family: "Roboto Condensed", sans-serif !important;
 }
 
-/* hover state: reveal glow only */
-.pin:hover::after{
-  opacity:1;
-  transform:translate(-50%,-50%) scale(1.35);
+
+/* MAP WRAPPER */
+#map-wrapper {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
 }
 
-/* optional: remove focus ring if you don't want it */
-.pin:focus{ outline:none; }
-.pin:focus-visible{ outline:none; }
-
-
-
-
-/* Viewer card */
-.pano-card{ position:relative; width:min(1100px, 90vw); aspect-ratio:16/9; background:#000; overflow:hidden; box-shadow:0 12px 42px rgba(0,0,0,.35); }
-#panorama{ position:absolute; inset:0; }
-.topbar{ position:absolute; top:16px; left:42px; right:36px; display:flex; justify-content:space-between; align-items:center; pointer-events:none; }
-.back{ pointer-events:auto; background:#111; color:#fff; border:1px solid rgba(255,255,255,.2); padding:.55rem .9rem; cursor:pointer; }
-.back:hover{ background:#222; }
-.label{ pointer-events:auto; position:absolute; top:0; right:50px; background:rgba(0,0,0,.55); color:#fff; padding:.55rem .9rem; font-weight:700; white-space:nowrap; }
-
-/* Pin Capture Panel (dev helper) */
-.pin-capture-panel{
-  position:absolute; top:20px; right:20px; z-index:5;
-  width:280px; background:#fff; border:1px solid rgba(0,0,0,.15);
-  box-shadow:0 8px 24px rgba(0,0,0,.18); padding:10px; font-size:14px;
+/* Background seating chart */
+#seating-bg {
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    pointer-events: none;
 }
-.pin-capture-panel .row{ display:flex; gap:8px; margin-bottom:8px; }
-.pin-capture-panel label{ display:flex; flex-direction:column; flex:1; font-weight:700; color:#333; }
-.pin-capture-panel input{ padding:6px 8px; border:1px solid #ddd; }
-.pin-capture-panel button{ padding:6px 10px; border:1px solid #bbb; background:#f6f6f6; cursor:pointer; }
-.pin-capture-panel button:hover{ background:#eee; }
-.pin-capture-panel textarea{ width:100%; border:1px solid #ddd; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
-.pin-capture-panel .hint{ margin-top:6px; color:#666; font-size:12px; }
+
+/* SVG overlay container */
+#overlay-container {
+    position: absolute;
+    inset: 0;
+}
+
+/* Overlay SVG */
+#overlay-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+}
+
+/* Transparent default, lighten on hover */
+#overlay-svg path {
+    fill: rgba(255,255,255,0);
+    stroke: transparent;
+    transition: fill 0.25s ease;
+}
+#overlay-svg path:hover {
+    fill: rgba(255, 255, 255, 0.466);
+    cursor: pointer;
+}
+
+/* ===================================================== */
+/*                       MODAL VIEWER                    */
+/* ===================================================== */
+#viewer-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity .35s ease;
+    cursor: pointer;
+}
+
+#viewer-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+#viewer-box {
+    width: min(1100px, 90vw);
+    aspect-ratio: 16/9;
+    background: #000;
+    position: relative;
+    cursor: default;
+}
+
+#panorama {
+    position: absolute;
+    inset: 0;
+}
+
+/* BACK BUTTON */
+#back-btn {
+    position: absolute;
+    top: 12px;
+    left: 40px;
+    background: rgba(54,191,237,0.78); /* #36BFED @ 78% opacity */
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 40;
+    backdrop-filter: blur(6px); /* smoother glass look */
+    transition: background 0.25s ease;
+}
+
+#back-btn:hover {
+    background: rgba(54,191,237,0.92); /* brighter, more opaque on hover */
+}
+
+
+/* SECTION TITLE BAR — MATCHES BACK BUTTON */
+#section-title {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(54,191,237,0.78); /* translucent aqua */
+    color: white;
+    padding: 8px 16px;
+    font-size: 22px;
+    font-weight: 700;
+    z-index: 40;
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+    text-transform: uppercase;
+    font-family: "Roboto Condensed", sans-serif;
+    transition: background 0.25s ease;
+}
+
+#section-title:hover {
+    background: rgba(54,191,237,0.92); /* brighter hover */
+}
+
+
 </style>
 </head>
-
 <body>
-<div id="overlay"></div>
 
-<!-- MAP -->
-<section id="mapView">
-  <div class="map-card" id="mapCard">
-    <img src="images/seating_chart.png" alt="Arena Map" class="map-image" id="mapImage">
+<div id="map-wrapper">
+    <img id="seating-bg" src="images/seating_chart.png" alt="Arena Seating Chart">
+    <div id="overlay-container"></div>
+</div>
 
-    <!-- Dropdown -->
-    <aside class="section-panel inside collapsed" id="sectionPanelMap">
-      <button class="panel-header" id="dropdownBtnMap" type="button">
-        <span>SECTIONS</span><span class="chev">▾</span>
-      </button>
-      <div class="panel-list" id="sectionListMap"></div>
-    </aside>
+<!-- 360 VIEWER MODAL -->
+<div id="viewer-modal">
+    <div id="viewer-box" onclick="event.stopPropagation()">
 
-    <!-- Pins layer -->
-    <div class="pin-layer" id="pinLayer"></div>
-
-    <!-- Pin Capture Panel (dev helper) -->
-    <div class="pin-capture-panel" id="pinCapture">
-      <div class="row">
-        <label>Section
-          <input id="capSection" type="text" placeholder="e.g. 119" />
-        </label>
-        <label>Seat
-          <input id="capSeat" type="text" placeholder="e.g. Q" />
-        </label>
-      </div>
-      <div class="row">
-        <button id="capToggle" type="button">Start capture</button>
-        <button id="capClear" type="button">Clear output</button>
-      </div>
-      <textarea id="capOutput" placeholder="Captured pins will appear here…" rows="6"></textarea>
-      <div class="hint">Click on the map to drop a pin. Click “Stop capture” when done.</div>
+        <!-- SECTION TITLE BAR -->
+        <div id="section-title"></div>
+    
+        <!-- BACK BUTTON -->
+        <button id="back-btn">← Back</button>
+    
+        <div id="panorama"></div>
     </div>
-  </div>
-</section>
-
-<!-- VIEWER -->
-<section id="viewerView">
-  <div class="pano-card">
-    <div id="panorama"></div>
-    <div class="topbar">
-      <button class="back" id="backBtn">← Back to Map</button>
-      <div class="label" id="sectionLabel">Section</div>
-    </div>
-  </div>
-</section>
+</div>
 
 <script>
-/* ========= Data =========
-   scenes: which seats exist per section (for dropdown + default loading)
-   pinMarkers: multiple pins per section/seat with IMAGE percent coords (0–100)
-*/
-const scenes = {
-  "100": { seats: ["E","H","M","Q"] },
-  "119": { seats: ["B","E","H","M","Q"] },
-  "120": { seats: ["H","M","Q"] },
-  // add more...
-};
+/* =================================================
+   LOAD THE SVG OVERLAY + ASSIGN CLICK HANDLERS
+   ================================================= */
+fetch("images/map_overlay.svg")
+    .then(res => res.text())
+    .then(svgText => {
+        document.getElementById("overlay-container").innerHTML = svgText;
 
-/* Add as many pins as needed; duplicates per seat are fine */
-const pinMarkers = [
-  // section 100
-{ section:"100", seat:"E", x:42.53, y:31.05, title:"Sec 100 — Row E" },
-{ section:"100", seat:"H", x:42.12, y:27.82, title:"Sec 100 — Row H" },
-{ section:"100", seat:"M", x:41.53, y:24.41, title:"Sec 100 — Row M" },
-{ section:"100", seat:"Q", x:41.12, y:21, title:"Sec 100 — Row Q" },
+        const svg = document.querySelector("#overlay-container svg");
+        svg.id = "overlay-svg";
 
-  // section 120
-{ section:"120", seat:"H", x:37.17, y:33.57, title:"Sec 120 — Row H" },
-{ section:"120", seat:"M", x:35.66, y:30.7, title:"Sec 120 — Row M" },
-{ section:"210", seat:"B", x:33.84, y:28, title:"Sec 120 — Row Q" },
-
-  // section 119
-{ section:"119", seat:"B", x:37.17, y:45.96, title:"Sec 119 — Row B" },
-{ section:"119", seat:"E", x:35.15, y:45.42, title:"Sec 119 — Row E" },
-{ section:"119", seat:"H", x:33.33, y:42.55, title:"Sec 119 — Row H" },
-{ section:"119", seat:"M", x:31.21, y:41.29, title:"Sec 119 — Row M" },
-{ section:"119", seat:"Q", x:28.89, y:41.97, title:"Sec 119 — Row Q" }
-
-
-];
-
-/* ========= Viewer helpers ========= */
-let viewer = null;
-const viewerView = document.getElementById('viewerView');
-const overlayEl  = document.getElementById('overlay');
-
-function showViewer(){ viewerView.classList.add('show'); overlayEl.classList.add('show'); }
-function hideViewer(){ viewerView.classList.remove('show'); overlayEl.classList.remove('show'); }
-
-function imagePathFor(sectionNum, seatLetter){
-  return `images/${sectionNum}/${sectionNum} ${seatLetter}-2.jpg`;
-}
-
-function loadSeat(sectionNum, seatLetter){
-  viewer = pannellum.viewer('panorama', {
-    type:'equirectangular',
-    panorama: imagePathFor(sectionNum, seatLetter),
-    autoLoad:true, showZoomCtrl:true, hfov:100
-  });
-  document.getElementById('sectionLabel').textContent = `Section ${sectionNum} — ${seatLetter}`;
-  highlightActiveSeat(sectionNum, seatLetter);   // expands dropdown & marks seat
-  showViewer();
-}
-
-/* ========= Dropdown: 100s/200s → Sections → Seats ========= */
-function populateSectionPanelGrouped(listElId, { collapseAll = true } = {}){
-  const listEl = document.getElementById(listElId);
-  if (!listEl) return;
-  listEl.innerHTML = '';
-
-  const groups = { "100s": [], "200s": [] };
-  Object.keys(scenes).forEach(sec=>{
-    const first = String(sec)[0];
-    const gk = first==='1' ? '100s' : first==='2' ? '200s' : null;
-    if(!gk) return; groups[gk].push(sec);
-  });
-  Object.keys(groups).forEach(gk=>groups[gk].sort((a,b)=>Number(a)-Number(b)));
-
-  ["100s","200s"].forEach(gk=>{
-    if(!groups[gk].length) return;
-    const wrap = document.createElement('div');
-    wrap.className = 'section-group' + (collapseAll ? ' collapsed' : '');
-
-    const header = document.createElement('button');
-    header.type='button'; header.className='group-header';
-    header.innerHTML = `<span>${gk}</span><span class="group-chev">▾</span>`;
-    header.addEventListener('click',()=>wrap.classList.toggle('collapsed'));
-
-    const list = document.createElement('div'); list.className='group-list';
-
-    groups[gk].forEach(secNum=>{
-      const secDef = scenes[secNum]; if(!secDef) return;
-
-      const sub = document.createElement('div');
-      sub.className = 'section-subgroup' + (collapseAll ? ' collapsed' : '');
-
-      const subHeader = document.createElement('button');
-      subHeader.type='button'; subHeader.className='section-subheader';
-      subHeader.innerHTML = `<span>Section ${secNum}</span><span class="chev">▾</span>`;
-      subHeader.addEventListener('click',()=>sub.classList.toggle('collapsed'));
-
-      const seatList = document.createElement('div'); seatList.className='seat-list';
-      (secDef.seats||[]).forEach(seat=>{
-        const seatItem = document.createElement('div');
-        seatItem.className = 'seat-item';
-        seatItem.textContent = seat;
-        seatItem.dataset.section = secNum;  // for exact-match highlight
-        seatItem.dataset.seat    = seat;
-        seatItem.addEventListener('click', (e)=>{
-          e.stopPropagation();
-          loadSeat(secNum, seat);
+        svg.querySelectorAll("path").forEach(path => {
+            path.addEventListener("click", () => openPanorama(path.id));
         });
-        seatList.appendChild(seatItem);
-      });
-
-      sub.appendChild(subHeader);
-      sub.appendChild(seatList);
-      list.appendChild(sub);
     });
 
-    wrap.appendChild(header);
-    wrap.appendChild(list);
-    listEl.appendChild(wrap);
-  });
-}
 
-/* Expand the correct group/section so the selected seat is visible */
-function expandToSeat(sectionNum){
-  const first = String(sectionNum)[0];
-  const groupLabel = first === '1' ? '100s' : first === '2' ? '200s' : null;
+/* =================================================
+      OPEN PANORAMA VIEWER
+   ================================================= */
+   function openPanorama(pathId) {
+    const sectionFolder = pathId.split("_")[0];
+    const file = `images/${sectionFolder}/${pathId}.jpg`;
 
-  // open whole panel if collapsed
-  const panel = document.getElementById('sectionPanelMap');
-  panel.classList.remove('collapsed');
+    // Format title: "119_A-C" → "SECTION 119 • ROWS A–C"
+    const [sec, rows] = pathId.split("_");
+    document.getElementById("section-title").innerText =
+        `SECTION ${sec} • ROWS ${rows.toUpperCase()}`;
 
-  // open the right 100s/200s group
-  const groups = [...document.querySelectorAll('.section-group')];
-  for (const g of groups) {
-    const headerText = g.querySelector('.group-header span')?.textContent?.trim();
-    if (headerText === groupLabel) {
-      g.classList.remove('collapsed');
+    // Show modal
+    const modal = document.getElementById("viewer-modal");
+    modal.style.display = "flex";
+    setTimeout(() => modal.classList.add("show"), 10);
 
-      // open the correct section subgroup
-      const subgroups = [...g.querySelectorAll('.section-subgroup')];
-      for (const sg of subgroups) {
-        const label = sg.querySelector('.section-subheader span')?.textContent || '';
-        if (label.endsWith(String(sectionNum))) {
-          sg.classList.remove('collapsed');
-        }
-      }
+    // Clear any old viewer
+    document.getElementById("panorama").innerHTML = "";
+    if (window.viewer) {
+        try { window.viewer.destroy(); } catch (e) {}
     }
-  }
+
+    // Create pannellum viewer
+    window.viewer = pannellum.viewer("panorama", {
+        type: "equirectangular",
+        panorama: file,
+        autoLoad: true,
+        showControls: true,
+        compass: false,
+        hfov: 100,
+        onError: () => alert("Panorama not found:\n" + file)
+    });
 }
 
-/* Highlight the EXACT seat (section + seat) */
-function highlightActiveSeat(sectionNum, seatLetter){
-  document.querySelectorAll('.seat-item').forEach(el => el.classList.remove('active'));
-  expandToSeat(sectionNum);
-  const match = document.querySelector(
-    `.seat-item[data-section="${sectionNum}"][data-seat="${seatLetter}"]`
-  );
-  if (match) match.classList.add('active');
+
+document.getElementById("back-btn").addEventListener("click", closeViewer);
+
+
+/* =================================================
+        CLICK ANYWHERE TO CLOSE VIEWER
+   ================================================= */
+document.getElementById("viewer-modal").addEventListener("click", closeViewer);
+
+function closeViewer() {
+    const modal = document.getElementById("viewer-modal");
+    modal.classList.remove("show");
+    setTimeout(() => modal.style.display = "none", 300);
+
+    if (window.viewer) {
+        try { window.viewer.destroy(); } catch (e) {}
+    }
 }
-
-/* ========= Pin rendering (letterbox-aware for object-fit: contain) ========= */
-const mapCard  = document.getElementById('mapCard');
-const mapImg   = document.getElementById('mapImage');
-const pinLayer = document.getElementById('pinLayer');
-
-function computeImageBox(){
-  const cardW = mapCard.clientWidth, cardH = mapCard.clientHeight;
-  const natW = mapImg.naturalWidth || 1, natH = mapImg.naturalHeight || 1;
-  const scale = Math.min(cardW / natW, cardH / natH);
-  const drawW = natW * scale, drawH = natH * scale;
-  const offX = (cardW - drawW) / 2;
-  const offY = (cardH - drawH) / 2;
-  return { offX, offY, drawW, drawH };
-}
-
-function renderPins(){
-  pinLayer.querySelectorAll('.pin').forEach(p=>p.remove());
-  const { offX, offY, drawW, drawH } = computeImageBox();
-
-  pinMarkers.forEach(m=>{
-    const btn = document.createElement('button');
-    btn.className = 'pin';
-    btn.title = m.title || `Sec ${m.section} — Row ${m.seat}`;
-    btn.dataset.section = m.section;
-    btn.dataset.seat    = m.seat;
-
-    // Convert % coords to pixels within the drawn image box
-    const px = offX + (m.x/100) * drawW;
-    const py = offY + (m.y/100) * drawH;
-    btn.style.left = `${px}px`;
-    btn.style.top  = `${py}px`;
-
-    btn.addEventListener('click', ()=> loadSeat(m.section, m.seat));
-    pinLayer.appendChild(btn);
-  });
-}
-
-/* ========= Pin Capture (dev helper) ========= */
-let captureOn = false;
-// Hide the capture panel unless ?dev is in the URL
-if (!window.location.search.includes('dev')) {
-  const panel = document.getElementById('pinCapture');
-  if (panel) panel.style.display = 'none';
-}
-const capPanel   = document.getElementById('pinCapture');
-const capSection = document.getElementById('capSection');
-const capSeat    = document.getElementById('capSeat');
-const capToggle  = document.getElementById('capToggle');
-const capClear   = document.getElementById('capClear');
-const capOutput  = document.getElementById('capOutput');
-
-capToggle.addEventListener('click', () => {
-  captureOn = !captureOn;
-  capToggle.textContent = captureOn ? 'Stop capture' : 'Start capture';
-  capPanel.style.boxShadow = captureOn ? '0 0 0 3px rgba(54,191,237,.4), 0 8px 24px rgba(0,0,0,.18)' : '0 8px 24px rgba(0,0,0,.18)';
-});
-
-capClear.addEventListener('click', () => { capOutput.value = ''; });
-
-mapCard.addEventListener('click', (e) => {
-  if (!captureOn) return;
-  // ignore clicks on UI elements (dropdown/panel/pins)
-  if (e.target.closest('.section-panel') || e.target.classList.contains('pin')) return;
-
-  const section = (capSection.value || '').trim();
-  const seat    = (capSeat.value || '').trim().toUpperCase();
-  if (!section || !seat) {
-    alert('Enter Section and Seat first (e.g., 119 and Q).');
-    return;
-  }
-
-  // compute percent coords inside drawn image box
-  const { offX, offY, drawW, drawH } = computeImageBox();
-  const rect = mapCard.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const clickY = e.clientY - rect.top;
-
-  // clamp to image area
-  const imgX = Math.min(Math.max(clickX - offX, 0), drawW);
-  const imgY = Math.min(Math.max(clickY - offY, 0), drawH);
-
-  const xPct = +( (imgX / drawW) * 100 ).toFixed(2);
-  const yPct = +( (imgY / drawH) * 100 ).toFixed(2);
-
-  const obj = {
-    section: section,
-    seat: seat,
-    x: xPct,
-    y: yPct,
-    title: `Sec ${section} — Row ${seat}`
-  };
-
-  // add to data + re-render
-  pinMarkers.push(obj);
-  renderPins();
-
-  // emit a copyable line
-  const line = `{ section:"${obj.section}", seat:"${obj.seat}", x:${obj.x}, y:${obj.y}, title:"${obj.title}" },`;
-  console.log(line);
-  capOutput.value += line + '\n';
-});
-
-/* ========= Wire up ========= */
-window.addEventListener('DOMContentLoaded', ()=>{
-  // Build dropdown
-  populateSectionPanelGrouped('sectionListMap', { collapseAll: true });
-
-  // Toggle dropdown open/close
-  document.getElementById('dropdownBtnMap')
-    .addEventListener('click', ()=> document.getElementById('sectionPanelMap').classList.toggle('collapsed'));
-
-  // Back from viewer to map
-  document.getElementById('backBtn').addEventListener('click', hideViewer);
-
-  // Render pins when image is ready, and on resize
-  if (mapImg.complete) renderPins();
-  mapImg.addEventListener('load', renderPins);
-  window.addEventListener('resize', renderPins);
-});
 </script>
+
 </body>
 </html>
