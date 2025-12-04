@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- Disable mobile pinch zoom only -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
 <title>Arena Seat Views</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
@@ -18,24 +21,20 @@ html, body {
     overflow: hidden;
 }
 
+/* Make sure viewer UI uses Roboto */
 #viewer-modal,
 #viewer-box,
 #panorama,
-#arrow-controls,
 #section-title,
 #back-btn {
     font-family: "Roboto Condensed", sans-serif !important;
 }
 
-
-/* MAP WRAPPER */
+/* Background Map */
 #map-wrapper {
     position: fixed;
     inset: 0;
-    overflow: hidden;
 }
-
-/* Background seating chart */
 #seating-bg {
     position: absolute;
     inset: 0;
@@ -45,47 +44,54 @@ html, body {
     pointer-events: none;
 }
 
-/* SVG overlay container */
+/* SVG overlay */
 #overlay-container {
     position: absolute;
     inset: 0;
 }
-
-/* Overlay SVG */
 #overlay-svg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    pointer-events: auto;
 }
-
-/* Transparent default, lighten on hover */
 #overlay-svg path {
-    fill: rgba(255,255,255,0);
-    stroke: transparent;
-    transition: fill 0.25s ease;
+    fill: rgba(255, 255, 255, 0);
+    transition: .25s;
+    stroke: none !important;
 }
 #overlay-svg path:hover {
-    fill: rgba(255, 255, 255, 0.466);
+    fill: rgba(255, 255, 255, 0.542);
     cursor: pointer;
 }
 
-/* ===================================================== */
-/*                       MODAL VIEWER                    */
-/* ===================================================== */
+/* Tooltip */
+#row-tooltip {
+    position: fixed;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.75);
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -120%);
+    transition: opacity .15s ease;
+    z-index: 9999;
+}
+
+/* PANORAMA VIEWER */
 #viewer-modal {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.75);
     display: none;
+    opacity: 0;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity .35s ease;
+    transition: opacity .3s ease;
     cursor: pointer;
 }
-
 #viewer-modal.show {
     display: flex;
     opacity: 1;
@@ -96,20 +102,20 @@ html, body {
     aspect-ratio: 16/9;
     background: #000;
     position: relative;
+    border-radius: 6px;
     cursor: default;
 }
-
 #panorama {
     position: absolute;
     inset: 0;
 }
 
-/* BACK BUTTON */
+/* Back Button */
 #back-btn {
     position: absolute;
     top: 12px;
     left: 40px;
-    background: rgba(54,191,237,0.78); /* #36BFED @ 78% opacity */
+    background: rgba(54,191,237,0.78);
     color: white;
     border: none;
     padding: 10px 16px;
@@ -117,79 +123,48 @@ html, body {
     font-weight: 700;
     cursor: pointer;
     z-index: 40;
-    backdrop-filter: blur(6px); /* smoother glass look */
-    transition: background 0.25s ease;
+    backdrop-filter: blur(6px);
+    transition: .25s;
 }
-
 #back-btn:hover {
-    background: rgba(54,191,237,0.92); /* brighter, more opaque on hover */
+    background: rgba(54,191,237,0.92);
 }
 
-
-/* SECTION TITLE BAR — MATCHES BACK BUTTON */
+/* Section Label */
 #section-title {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: rgba(54,191,237,0.78); /* translucent aqua */
-    color: white;
     padding: 8px 16px;
+    background: rgba(54,191,237,0.78);
+    color: white;
     font-size: 22px;
     font-weight: 700;
     z-index: 40;
-    backdrop-filter: blur(6px);
     pointer-events: none;
-    text-transform: uppercase;
-    font-family: "Roboto Condensed", sans-serif;
-    transition: background 0.25s ease;
 }
-
-#section-title:hover {
-    background: rgba(54,191,237,0.92); /* brighter hover */
-}
-
-#row-tooltip {
-    position: fixed;
-    padding: 6px 10px;
-    background: rgba(0,0,0,0.75);
-    color: white;
-    font-family: "Roboto Condensed", sans-serif;
-    font-size: 16px;
-    border-radius: 6px;
-    pointer-events: none;
-    opacity: 0;
-    transform: translate(-50%, -120%);
-    transition: opacity 0.15s ease;
-    z-index: 9999;
-}
-
 </style>
 </head>
+
 <body>
 
 <div id="map-wrapper">
-    <img id="seating-bg" src="images/seating_chart.png" alt="Arena Seating Chart">
+    <img id="seating-bg" src="images/seating_chart.png" alt="">
     <div id="overlay-container"></div>
+    <div id="row-tooltip"></div>
 </div>
 
-<!-- 360 VIEWER MODAL -->
+<!-- VIEWER -->
 <div id="viewer-modal">
     <div id="viewer-box" onclick="event.stopPropagation()">
-
-        <!-- SECTION TITLE BAR -->
         <div id="section-title"></div>
-    
-        <!-- BACK BUTTON -->
         <button id="back-btn">← Back</button>
-    
         <div id="panorama"></div>
     </div>
 </div>
 
 <script>
-/* =================================================
-   LOAD THE SVG OVERLAY + ASSIGN CLICK HANDLERS
-   ================================================= */
+/* Load SVG and apply hover + tooltip + click */
 fetch("images/map_overlay.svg")
     .then(res => res.text())
     .then(svgText => {
@@ -200,87 +175,63 @@ fetch("images/map_overlay.svg")
 
         const tooltip = document.getElementById("row-tooltip");
 
-svg.querySelectorAll("path").forEach(path => {
+        svg.querySelectorAll("path").forEach(path => {
+            path.addEventListener("click", () => openPanorama(path.id));
 
-    // CLICK — open panorama
-    path.addEventListener("click", () => openPanorama(path.id));
+            path.addEventListener("mouseenter", () => {
+                const rows = path.id.split("_")[1];
+                tooltip.innerText = rows.toUpperCase();
+                tooltip.style.opacity = 1;
+            });
 
-    // HOVER IN — show full row range (e.g., "A-C")
-    path.addEventListener("mouseenter", (e) => {
-        const rows = path.id.split("_")[1];  // "A-C"
-        tooltip.innerText = rows.toUpperCase();  
-        tooltip.style.opacity = 1;
+            path.addEventListener("mousemove", e => {
+                tooltip.style.left = e.clientX + "px";
+                tooltip.style.top = e.clientY + "px";
+            });
+
+            path.addEventListener("mouseleave", () => {
+                tooltip.style.opacity = 0;
+            });
+        });
     });
 
-    // MOVE — follow cursor
-    path.addEventListener("mousemove", (e) => {
-        tooltip.style.left = e.clientX + "px";
-        tooltip.style.top = e.clientY + "px";
-    });
-
-    // HOVER OUT — hide
-    path.addEventListener("mouseleave", () => {
-        tooltip.style.opacity = 0;
-    });
-});
-
-    });
-
-
-/* =================================================
-      OPEN PANORAMA VIEWER
-   ================================================= */
-   function openPanorama(pathId) {
-    const sectionFolder = pathId.split("_")[0];
-    const file = `images/${sectionFolder}/${pathId}.jpg`;
-
-    // Format title: "119_A-C" → "SECTION 119 • ROWS A–C"
+/* Open panorama */
+function openPanorama(pathId) {
     const [sec, rows] = pathId.split("_");
+    const file = `images/${sec}/${pathId}.jpg`;
+
     document.getElementById("section-title").innerText =
         `SECTION ${sec} • ROWS ${rows.toUpperCase()}`;
 
-    // Show modal
     const modal = document.getElementById("viewer-modal");
     modal.style.display = "flex";
     setTimeout(() => modal.classList.add("show"), 10);
 
-    // Clear any old viewer
     document.getElementById("panorama").innerHTML = "";
-    if (window.viewer) {
-        try { window.viewer.destroy(); } catch (e) {}
-    }
+    if (window.viewer) viewer.destroy();
 
-    // Create pannellum viewer
     window.viewer = pannellum.viewer("panorama", {
         type: "equirectangular",
         panorama: file,
         autoLoad: true,
         showControls: true,
-        compass: false,
         hfov: 100,
-        onError: () => alert("Panorama not found:\n" + file)
+        compass: false
     });
 }
 
-
-document.getElementById("back-btn").addEventListener("click", closeViewer);
-
-
-/* =================================================
-        CLICK ANYWHERE TO CLOSE VIEWER
-   ================================================= */
-document.getElementById("viewer-modal").addEventListener("click", closeViewer);
-
+/* Close viewer */
 function closeViewer() {
     const modal = document.getElementById("viewer-modal");
     modal.classList.remove("show");
     setTimeout(() => modal.style.display = "none", 300);
 
-    if (window.viewer) {
-        try { window.viewer.destroy(); } catch (e) {}
-    }
+    if (window.viewer) viewer.destroy();
 }
+
+document.getElementById("back-btn").addEventListener("click", closeViewer);
+document.getElementById("viewer-modal").addEventListener("click", closeViewer);
 </script>
-<div id="row-tooltip"></div>
+
 </body>
 </html>
