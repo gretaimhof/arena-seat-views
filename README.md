@@ -35,19 +35,19 @@ You can also view the **live hosted version** online here:
 ---
 
 ## 3. Folder Structure
-
+```
 arena-seat-views/
 │
 ├── index.html
 ├── /images/
-│ ├── seating_chart.png
-│ ├── map_overlay.svg
-│ ├── /119/
-│ │ ├── 119_A-C.jpg
-│ ├── /120/
-│ ├── /WhiteClawSuite/
-│ └── /MagnoliasSuite/
-
+│   ├── seating_chart.png
+│   ├── map_overlay.svg
+│   ├── /119/
+│   │   ├── 119_A-C.jpg
+│   ├── /120/
+│   ├── /WhiteClawSuite/
+│   └── /MagnoliasSuite/
+```
 
 ---
 
@@ -56,111 +56,169 @@ arena-seat-views/
 The site uses an **SVG overlay** to define clickable seating areas.
 
 Each area has a unique ID:
-<path id="119_A-C" /> ```
+```
+<path id="119_A-C" />
+```
 
 This directly maps to:
-
+```
 images/119/119_A-C.jpg
-Naming Format
+```
+
+### Naming Format
+```
 [Section]_[Row(s)].jpg
-Examples
+```
+
+### Examples
+```
 119_A.jpg
 119_A-C.jpg
 120_Q.jpg
+```
 
-File names and SVG IDs must match exactly.
+> File names and SVG IDs must match exactly.
 
-5. Updating Seat Photos
-To Add or Replace Photos
-Navigate to the correct section folder inside /images/.
-Add or replace the panoramic image.
-Ensure the file name matches the SVG ID format.
+---
+
+## 5. Updating Seat Photos
+
+### To Add or Replace Photos
+1. Navigate to the correct section folder inside `/images/`.  
+2. Add or replace the panoramic image.  
+3. Ensure the file name matches the SVG ID format.  
 
 No code changes are required if naming is consistent.
 
-6. Adding or Updating Sections/Rows
+---
+
+## 6. Adding or Updating Sections/Rows
 
 Sections and rows are controlled by:
-
+```
 /images/map_overlay.svg
-To Update:
-Edit the overlay in Figma.
-Export as SVG.
-Ensure each clickable shape:
-Is a <path>
+```
 
-Has an ID like:
+### To Update:
+1. Edit the overlay in Figma.  
+2. Export as SVG.  
+3. Ensure each clickable shape:
+   - Is a `<path>`
+   - Has an ID like:
+     ```
+     119_A-C
+     ```
+4. Replace `map_overlay.svg`.
 
-119_A-C
-Replace map_overlay.svg.
-7. Updating the Map Overlay
-File Location
+---
+
+## 7. Updating the Map Overlay
+
+### File Location
+```
 /images/map_overlay.svg
-Steps:
-Open overlay in Figma
-Select only clickable shapes
-Flatten (Cmd/Ctrl + E)
-Export as SVG
-Replace file
-Refresh site
-Requirements
+```
 
+### Steps:
+1. Open overlay in Figma  
+2. Select only clickable shapes  
+3. Flatten (Cmd/Ctrl + E)  
+4. Export as SVG  
+5. Replace file  
+6. Refresh site  
+
+### Requirements
 Each shape must:
+- Be a `<path>`
+- Have an `id`
 
-Be a <path>
-Have an id
-Section Example
+#### Section Example
+```
 <path id="119_A-C" />
-Suite Example
+```
+
+#### Suite Example
+```
 <path id="MagnoliasSuite" data-label="Magnolia's Party Suite" />
-If it doesn’t update
+```
 
-Hard refresh:
+### If it doesn’t update
+- Hard refresh:
+  ```
+  Cmd + Shift + R
+  ```
+- Or rename:
+  ```
+  map_overlay_v2.svg
+  ```
 
-Cmd + Shift + R
+---
 
-Or rename:
+## 8. Adding Premium Areas (Suites)
 
-map_overlay_v2.svg
-8. Adding Premium Areas (Suites)
-SVG
+### SVG
+```
 <path id="MagnoliasSuite" data-label="Magnolia's Party Suite" />
-Image
+```
+
+### Image
+```
 images/MagnoliasSuite/MagnoliasSuite.jpg
-Behavior
-Click → opens panorama
-Displays custom label
-No section/row formatting
-9. Updating the Arena Map
+```
+
+### Behavior
+- Click → opens panorama  
+- Displays custom label  
+- No section/row formatting  
+
+---
+
+## 9. Updating the Arena Map
 
 File:
-
+```
 /images/seating_chart.png
-Steps
-Replace image
-Keep proportions similar
-Update overlay if layout changes
-10. How the Viewer Works
-Built with Pannellum
-Loads panoramas dynamically
-Displays:
-Section + rows
-OR suite labels
-11. Maintenance Guidelines
-Use .jpg images
-Keep naming consistent
-Do not rename index.html
-Update overlay when needed
-12. Viewing the Live Version
+```
+
+### Steps
+1. Replace image  
+2. Keep proportions similar  
+3. Update overlay if layout changes  
+
+---
+
+## 10. How the Viewer Works
+
+- Built with **Pannellum**
+- Loads panoramas dynamically
+- Displays:
+  - Section + rows
+  - OR suite labels  
+
+---
+
+## 11. Maintenance Guidelines
+- Use `.jpg` images  
+- Keep naming consistent  
+- Do not rename `index.html`  
+- Update overlay when needed  
+
+---
+
+## 12. Viewing the Live Version
 
 Live site:
 https://gretaimhof.github.io/arena-seat-views/
 
-To update
+### To update
+```
 git add .
 git commit -m "update"
 git push
-13. Contact
+```
 
-Developer: Greta Imhof
-Email: gretaimhof@gmail.com
+---
+
+## 13. Contact
+**Developer:** Greta Imhof  
+**Email:** gretaimhof@gmail.com  
