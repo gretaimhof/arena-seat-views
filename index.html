@@ -176,7 +176,11 @@ fetch("images/map_overlay.svg")
         const tooltip = document.getElementById("row-tooltip");
 
         svg.querySelectorAll("path").forEach(path => {
-            path.addEventListener("click", () => openPanorama(path.id));
+            
+            path.addEventListener("click", () => {
+                const label = path.getAttribute("data-label");
+                openPanorama(path.id, label);
+            });
 
             path.addEventListener("mouseenter", () => {
                 const rows = path.id.split("_")[1];
@@ -195,13 +199,23 @@ fetch("images/map_overlay.svg")
         });
     });
 
-/* Open panorama */
-function openPanorama(pathId) {
-    const [sec, rows] = pathId.split("_");
-    const file = `images/${sec}/${pathId}.jpg`;
 
-    document.getElementById("section-title").innerText =
-        `SECTION ${sec} • ROWS ${rows.toUpperCase()}`;
+    function openPanorama(pathId, label = null) {
+    let title = "";
+    let file = "";
+
+    if (pathId.includes("_")) {
+        const [sec, rows] = pathId.split("_");
+        const isSingleRow = !rows.includes("-");
+        const rowLabel = isSingleRow ? "ROW" : "ROWS";
+        title = `SECTION ${sec} • ${rowLabel} ${rows.toUpperCase()}`;
+        file = `images/${sec}/${pathId}.jpg`;
+    } else {
+        title = label || pathId;
+        file = `images/${pathId}/${pathId}.jpg`;
+    }
+
+    document.getElementById("section-title").innerText = title;
 
     const modal = document.getElementById("viewer-modal");
     modal.style.display = "flex";
