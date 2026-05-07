@@ -171,7 +171,7 @@ html, body {
         const isPhone = /Mobi|Android|iPhone|iPad|iPod|Tablet/i.test(navigator.userAgent);
       
         if (isPhone) {
-          document.body.innerHTML = `
+          document.write(`
             <div style="
               position:fixed;
               inset:0;
@@ -185,20 +185,17 @@ html, body {
               font-size:22px;
               font-weight:700;
               padding:20px;
+              z-index:99999;
             ">
               This experience is only available on a computer.<br>
               Please visit on a desktop or laptop.
             </div>
-          `;
+          `);
+      
+          throw new Error("Mobile blocked"); // ⛔ stops everything else
         }
       </script>
 
-<div id="mobile-block">
-    <div class="mobile-message">
-      This experience is best viewed on a computer.<br>
-      Please visit on a desktop or laptop.
-    </div>
-  </div>
 
 <div id="map-wrapper">
     <img id="seating-bg" src="images/seating_chart.png" alt="">
