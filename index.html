@@ -143,10 +143,36 @@ html, body {
     z-index: 40;
     pointer-events: none;
 }
+
+#mobile-block {
+  position: fixed;
+  inset: 0;
+  background: #00243C;
+  color: white;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 99999;
+  padding: 20px;
+}
+
+.mobile-message {
+  font-size: 22px;
+  font-weight: 700;
+  max-width: 400px;
+}
 </style>
 </head>
 
 <body>
+
+<div id="mobile-block">
+    <div class="mobile-message">
+      This experience is best viewed on a computer.<br>
+      Please visit on a desktop or laptop.
+    </div>
+  </div>
 
 <div id="map-wrapper">
     <img id="seating-bg" src="images/seating_chart.png" alt="">
@@ -245,6 +271,21 @@ function closeViewer() {
 
 document.getElementById("back-btn").addEventListener("click", closeViewer);
 document.getElementById("viewer-modal").addEventListener("click", closeViewer);
+
+function checkMobile() {
+  const isMobile = window.innerWidth < 900; // you can tweak this
+
+  const blocker = document.getElementById("mobile-block");
+
+  if (isMobile) {
+    blocker.style.display = "flex";
+  } else {
+    blocker.style.display = "none";
+  }
+}
+
+checkMobile();
+window.addEventListener("resize", checkMobile);
 </script>
 
 </body>
