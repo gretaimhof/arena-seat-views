@@ -167,6 +167,32 @@ html, body {
 
 <body>
 
+    <script>
+        const isPhone = /Mobi|Android|iPhone|iPad|iPod|Tablet/i.test(navigator.userAgent);
+      
+        if (isPhone) {
+          document.body.innerHTML = `
+            <div style="
+              position:fixed;
+              inset:0;
+              background:#00243C;
+              color:white;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              text-align:center;
+              font-family:'Roboto Condensed', sans-serif;
+              font-size:22px;
+              font-weight:700;
+              padding:20px;
+            ">
+              This experience is only available on a computer.<br>
+              Please visit on a desktop or laptop.
+            </div>
+          `;
+        }
+      </script>
+
 <div id="mobile-block">
     <div class="mobile-message">
       This experience is best viewed on a computer.<br>
@@ -271,21 +297,6 @@ function closeViewer() {
 
 document.getElementById("back-btn").addEventListener("click", closeViewer);
 document.getElementById("viewer-modal").addEventListener("click", closeViewer);
-
-function checkMobile() {
-  const isMobile = window.innerWidth < 900; // you can tweak this
-
-  const blocker = document.getElementById("mobile-block");
-
-  if (isMobile) {
-    blocker.style.display = "flex";
-  } else {
-    blocker.style.display = "none";
-  }
-}
-
-checkMobile();
-window.addEventListener("resize", checkMobile);
 </script>
 
 </body>
