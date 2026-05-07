@@ -168,10 +168,12 @@ html, body {
 <body>
 
     <script>
-        const isPhone = /Mobi|Android|iPhone|iPad|iPod|Tablet/i.test(navigator.userAgent);
+        const isPhone =
+          /Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+          (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
       
         if (isPhone) {
-          document.write(`
+          document.body.innerHTML = `
             <div style="
               position:fixed;
               inset:0;
@@ -190,9 +192,9 @@ html, body {
               This experience is only available on a computer.<br>
               Please visit on a desktop or laptop.
             </div>
-          `);
+          `;
       
-          throw new Error("Mobile blocked"); // ⛔ stops everything else
+          throw new Error("Mobile blocked");
         }
       </script>
 
